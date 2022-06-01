@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<build-type xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" uuid="3b94983a-44e8-432a-80df-7cdf7119fbd2" xsi:noNamespaceSchemaLocation="https://www.jetbrains.com/teamcity/schemas/2021.1/project-config.xsd">
+  <name>ci_cd_demo</name>
+  <description />
+  <settings>
+    <options>
+      <option name="artifactRules" value="+:./build=&gt;ci_cd_demo.10.0.0.%build.number%-master.zip" />
+      <option name="publishArtifactCondition" value="SUCCESSFUL" />
+    </options>
+    <parameters />
+    <build-runners>
+      <runner id="RUNNER_2" name="restore" type="dotnet">
+        <parameters>
+          <param name="command" value="restore" />
+          <param name="dotNetCoverage.dotCover.home.path" value="%teamcity.tool.JetBrains.dotCover.CommandLineTools.DEFAULT%" />
+          <param name="paths" value="ci_cd_demo" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_3" name=".net Build" type="dotnet">
+        <parameters>
+          <param name="command" value="publish" />
+          <param name="dotNetCoverage.dotCover.home.path" value="%teamcity.tool.JetBrains.dotCover.CommandLineTools.DEFAULT%" />
+          <param name="outputDir" value="./build" />
+          <param name="paths" value="ci_cd_demo" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_5" name="pushpackage" type="octopus.push.package">
+        <parameters>
+          <param name="octopus_forcepush" value="false" />
+          <param name="octopus_host" value="http://localhost:8000/" />
+          <param name="octopus_packagepaths" value="+:./build=&gt;ci_cd_demo.10.0.0.%build.number%-master.zip" />
+          <param name="secure:octopus_apikey" value="credentialsJSON:8a53f649-1939-49f2-bb37-535f60ec36db" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_6" name="release metadata" type="octopus.metadata">
+        <parameters>
+          <param name="octopus_forcepush" value="false" />
+          <param name="octopus_host" value="http://localhost:8000/" />
+          <param name="octopus_packageid" value="ci_cd_demo" />
+          <param name="octopus_packageversion" value="10.0.0.%build.number%-master" />
+          <param name="secure:octopus_apikey" value="credentialsJSON:8a53f649-1939-49f2-bb37-535f60ec36db" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_7" name="Create Release OCtopus" type="octopus.create.release">
+        <parameters>
+          <param name="octopus_channel_name" value="dev" />
+          <param name="octopus_deployto" value="dev" />
+          <param name="octopus_host" value="http://localhost:8000" />
+          <param name="octopus_project_name" value="ci_cd_demo" />
+          <param name="octopus_releasenumber" value="10.0.0.%build.number%-master" />
+          <param name="octopus_version" value="3.0+" />
+          <param name="secure:octopus_apikey" value="credentialsJSON:8a53f649-1939-49f2-bb37-535f60ec36db" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+      <runner id="RUNNER_8" name="Deploy octoupus release" type="octopus.deploy.release">
+        <parameters>
+          <param name="octopus_deployto" value="dev" />
+          <param name="octopus_host" value="http://localhost:8000/" />
+          <param name="octopus_project_name" value="ci_cd_demo" />
+          <param name="octopus_releasenumber" value="10.0.0.%build.number%-master" />
+          <param name="octopus_version" value="3.0+" />
+          <param name="secure:octopus_apikey" value="credentialsJSON:8a53f649-1939-49f2-bb37-535f60ec36db" />
+          <param name="teamcity.step.mode" value="default" />
+        </parameters>
+      </runner>
+    </build-runners>
+    <vcs-settings>
+      <vcs-entry-ref root-id="TestProject_CiCdDemo" />
+    </vcs-settings>
+    <requirements />
+    <build-triggers />
+    <cleanup />
+  </settings>
+</build-type>
+
